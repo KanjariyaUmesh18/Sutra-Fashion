@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us — SUTRA{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <span class="eyebrow" style="justify-content:center; color:var(--color-thread-gold)">Get in Touch</span>
+    <h1>Contact Us</h1>
+    <p class="text-muted" style="max-width:500px; margin:var(--space-sm) auto 0">
+      We are here to assist you with styling advice, order inquiries, or any other questions you may have.
+    </p>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container" style="max-width:600px">
+    <form method="post" action="{% url 'contact' %}" class="form">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label" for="id_name">Full Name</label>
+        <input type="text" name="name" class="form-control" id="id_name" value="{{ form.name.value|default:'' }}" required>
+        {{ form.name.errors }}
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="id_email">Email Address</label>
+        <input type="email" name="email" class="form-control" id="id_email" value="{{ form.email.value|default:'' }}" required>
+        {{ form.email.errors }}
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="id_message">Message</label>
+        <textarea name="message" class="form-control" id="id_message" rows="5" required>{{ form.message.value|default:'' }}</textarea>
+        {{ form.message.errors }}
+      </div>
+      
+      <button type="submit" class="btn btn--block">Send Message</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

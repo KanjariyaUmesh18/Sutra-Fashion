@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Account — SUTRA{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ============================================================
+     Account / Profile page — self-contained styling.
+
+     Root cause of the broken layout: this page's markup uses
+     .account-layout / .account-sidebar / .account-nav /
+     .account-content / .account-grid / .account-card, but no CSS
+     file in the project defines any of these classes (the shared
+     stylesheet only has an unrelated .profile-* set built for a
+     different markup), so the page was rendering with zero layout
+     styling. `.table` also has no styling anywhere in the project,
+     and the inline address box referenced var(--color-border),
+     which isn't a defined variable (only --color-line exists) —
+     both fixed below.
+     ============================================================ */
+
+  .account-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .account-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Sidebar ---- */
+  .account-sidebar {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    position: sticky;
+    top: calc(var(--nav-height) + var(--space-md));
+  }
+  @media (max-width: 768px) {
+    .account-sidebar { position: static; }
+  }
+  .account-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--color-ivory-deep);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto var(--space-md);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-oxblood);
+  }
+  .account-nav { display: flex; flex-direction: column; }
+  .account-nav a {
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm) 0.25rem;
+    border-bottom: 1px solid var(--color-line);
+    font-size: var(--fs-body-sm);
+    color: var(--color-ink);
+    transition: color 0.15s ease, padding-left 0.15s ease;
+  }
+  .account-nav a:hover { color: var(--color-oxblood); padding-left: 0.35rem; }
+  .account-nav a.is-active { color: var(--color-oxblood); font-weight: 600; }
+  .account-nav a:last-of-type { border-bottom: none; }
+
+  /* ---- Content ---- */
+  .account-content h2 {
+    font-family: var(--font-display);
+    font-size: var(--fs-display-sm);
+    margin-bottom: var(--space-2xs);
+  }
+
+  .account-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .account-grid { grid-template-columns: 1fr; }
+  }
+
+  .account-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+  }
+  .account-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    margin: 0;
+  }
+
+  .account-address-box {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-body-sm);
+    line-height: 1.6;
+  }
+
+  /* ---- Generic table styling (used by Recent Orders) ---- */
+  .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-body-sm);
+  }
+  .table th, .table td {
+    padding: var(--space-sm) var(--space-2xs);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .table thead th {
+    text-transform: uppercase;
+    font-size: var(--fs-caption);
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    border-bottom: 1.5px solid var(--color-line);
+  }
+  .table tbody tr { border-bottom: 1px solid var(--color-line); }
+  .table tbody tr:last-child { border-bottom: none; }
+  .table tbody tr:hover { background: var(--color-ivory); }
+  .table td a { color: var(--color-oxblood); }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>My Account</h1>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <div class="account-layout">
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <div class="account-avatar">{{ user.first_name|default:user.username|slice:":1"|upper }}</div>
+        <nav class="account-nav">
+          <a href="{% url 'profile' %}" class="is-active">Profile Overview</a>
+          <a href="{% url 'order_history' %}">Order History</a>
+          <a href="{% url 'address_list' %}">Saved Addresses</a>
+          <a href="{% url 'my_messages' %}">My Messages</a>
+          <a href="{% url 'edit_profile' %}">Account Settings</a>
+        </nav>
+        <form action="{% url 'logout' %}" method="post" style="margin-top:var(--space-md)">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--outline btn--block">Sign Out</button>
+        </form>
+      </aside>
+
+      <!-- Content -->
+      <div class="account-content">
+        <h2>Welcome back, {{ user.first_name|default:user.username }}</h2>
+        <p class="text-muted" style="margin-bottom:var(--space-lg)">Manage your details, view your orders, and save your preferences.</p>
+
+        <div class="account-grid">
+          <div class="account-card">
+            <h3>Recent Orders</h3>
+            {% if orders %}
+              <div class="table-responsive" style="margin-top:var(--space-md)">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for order in orders %}
+                    <tr>
+                      <td><a href="{% url 'order_detail' order.order_number %}" style="text-decoration:underline">#{{ order.order_number }}</a></td>
+                      <td>{{ order.created_at|date:"M d, Y" }}</td>
+                      <td><span class="badge">{{ order.get_status_display }}</span></td>
+                      <td>₹{{ order.total }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <a href="{% url 'order_history' %}" class="btn btn--outline btn--sm" style="margin-top:var(--space-md)">View All Orders</a>
+            {% else %}
+              <p class="text-muted" style="margin-top:var(--space-md)">You haven't placed any orders yet.</p>
+              <a href="{% url 'categories' %}" class="btn btn--outline btn--sm" style="margin-top:var(--space-md)">Start Shopping</a>
+            {% endif %}
+          </div>
+
+          <div class="account-card">
+            <div class="flex-between">
+              <h3>Default Address</h3>
+              <a href="{% url 'address_list' %}" class="text-sm" style="text-decoration:underline; color:var(--color-oxblood)">Manage</a>
+            </div>
+
+            {% with default_addr=addresses.first %}
+              {% if default_addr %}
+                <div class="account-address-box">
+                  <strong>{{ default_addr.name }}</strong><br>
+                  {{ default_addr.line1 }}<br>
+                  {% if default_addr.line2 %}{{ default_addr.line2 }}<br>{% endif %}
+                  {{ default_addr.city }}, {{ default_addr.state }} {{ default_addr.pincode }}<br>
+                  Phone: {{ default_addr.phone }}
+                </div>
+              {% else %}
+                <p class="text-muted" style="margin-top:var(--space-md)">You haven't saved any addresses yet.</p>
+                <a href="{% url 'address_add' %}" class="btn btn--outline btn--sm" style="margin-top:var(--space-md)">Add Address</a>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

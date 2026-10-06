@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Cart — SUTRA{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>Your Bag</h1>
+    <p class="text-muted" style="margin-top:var(--space-sm)">{{ cart.item_count }} items</p>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    {% if cart.items.exists %}
+      <div class="cart-layout">
+        <div class="cart-items">
+          {% for item in cart.items.all %}
+          <div class="cart-item reveal">
+            <a href="{% url 'product_detail' item.product.slug %}" class="cart-item__img">
+              {% if item.product.images.first %}
+                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
+              {% else %}
+                <img src="https://images.pexels.com/photos/37523792/pexels-photo-37523792.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" alt="{{ item.product.name }}">
+              {% endif %}
+            </a>
+
+            <div class="cart-item__info">
+              <h3 class="cart-item__title">
+                <a href="{% url 'product_detail' item.product.slug %}">{{ item.product.name }}</a>
+              </h3>
+              <div class="cart-item__meta">
+                <span>Size: {{ item.size }}</span>
+                {% if item.color %}<span>Colour: {{ item.color }}</span>{% endif %}
+              </div>
+            </div>
+
+            <div class="cart-item__actions">
+              <form action="{% url 'update_cart' item.id %}" method="post" class="qty-stepper">
+                {% csrf_token %}
+                <button type="submit" name="action" value="decrease" class="qty-btn" aria-label="Decrease quantity">−</button>
+                <input type="text" class="qty-input" value="{{ item.quantity }}" readonly aria-label="Quantity">
+                <button type="submit" name="action" value="increase" class="qty-btn" aria-label="Increase quantity">+</button>
+              </form>
+              <div class="cart-item__line-total">₹{{ item.line_total }}</div>
+              <form action="{% url 'remove_from_cart' item.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="cart-item__remove">Remove</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <aside class="summary-card">
+          <h2 style="font-size:var(--fs-lg); margin-bottom:var(--space-md)">Order Summary</h2>
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>₹{{ cart.total }}</span>
+          </div>
+          <div class="summary-row text-sm text-muted">
+            <span>Shipping &amp; Taxes calculated at checkout</span>
+          </div>
+          <div class="summary-row summary-row--total">
+            <span>Total</span>
+            <span>₹{{ cart.total }}</span>
+          </div>
+          <a href="{% url 'checkout' %}" class="btn btn--block" style="margin-top:var(--space-lg)">Proceed to Checkout</a>
+        </aside>
+      </div>
+    {% else %}
+      <div class="empty-state text-center">
+        <svg viewBox="0 0 24 24" style="width:64px; height:64px; margin-bottom:var(--space-md); stroke:var(--color-ink-light); fill:none; stroke-width:1"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
+        <h2 style="font-size:var(--fs-xl); margin-bottom:var(--space-sm)">Your bag is empty</h2>
+        <p class="text-muted" style="margin-bottom:var(--space-lg)">Looks like you haven't added anything to your cart yet.</p>
+        <a href="{% url 'categories' %}" class="btn">Continue Shopping</a>
+      </div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

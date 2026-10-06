@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Address — SUTRA{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>Delete Address</h1>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <div class="account-layout">
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <nav class="account-nav">
+          <a href="{% url 'profile' %}">Profile Overview</a>
+          <a href="{% url 'order_history' %}">Order History</a>
+          <a href="{% url 'address_list' %}" class="is-active">Saved Addresses</a>
+          <a href="{% url 'edit_profile' %}">Account Settings</a>
+          <form action="{% url 'logout' %}" method="post" style="margin-top:var(--space-md)">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--outline btn--block">Sign Out</button>
+          </form>
+        </nav>
+      </aside>
+
+      <!-- Content -->
+      <div class="account-content">
+        <div class="account-card" style="max-width:500px">
+          <h2 style="margin-bottom:var(--space-md); color:var(--color-oxblood)">Are you sure?</h2>
+          <p class="text-muted" style="margin-bottom:var(--space-lg)">You are about to delete the following address. This action cannot be undone.</p>
+          
+          <div style="margin-bottom:var(--space-lg); padding:var(--space-md); border:1px solid var(--color-border); border-radius:4px">
+            <strong>{{ address.name }}</strong><br>
+            {{ address.line1 }}<br>
+            {% if address.line2 %}{{ address.line2 }}<br>{% endif %}
+            {{ address.city }}, {{ address.state }} {{ address.pincode }}<br>
+            Phone: {{ address.phone }}
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="flex gap-md">
+              <button type="submit" class="btn btn--danger">Delete Address</button>
+              <a href="{% url 'address_list' %}" class="btn btn--outline">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

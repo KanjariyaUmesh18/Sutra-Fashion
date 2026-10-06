@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SUTRA — Considered Ethnic &amp; Contemporary Womenswear{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero__content">
+    <span class="eyebrow">The Autumn Edit</span>
+    <h1 class="hero__title">Every thread<br><em>tells a story.</em></h1>
+    <p style="max-width:440px">Hand-finished Kurtis, jewel-toned Sarees and considered Western wear — designed for the woman who dresses with intention, not impulse.</p>
+    <div class="hero__actions">
+      <a href="{% url 'categories' %}" class="btn">Shop Collections</a>
+      <a href="{% url 'new_arrivals' %}" class="btn btn--outline">New Arrivals</a>
+    </div>
+  </div>
+  <div class="hero__media">
+    <img src="{% static 'images/hero/pexels-photo-13204680.jpeg' %}" alt="Model wearing a SUTRA ethnic ensemble" onerror="this.onerror=null;this.src='https://images.pexels.com/photos/13204680/pexels-photo-13204680.jpeg?auto=compress&cs=tinysrgb&w=900&h=1100&fit=crop';">
+    <div class="stitch-divider hero__stitch"></div>
+  </div>
+</section>
+
+<!-- CATEGORY SHOWCASE -->
+<section class="section section--tight">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Shop by Category</span>
+        <h2>Find your silhouette</h2>
+      </div>
+      <a href="{% url 'categories' %}" class="btn btn--outline btn--sm">View All Categories</a>
+    </div>
+    <div class="category-grid reveal-stagger">
+      {% for cat in categories %}
+      <a href="{% url 'category_detail' cat.slug %}" class="category-card">
+        {% if cat.image %}
+          <img src="{{ cat.image.url }}" alt="{{ cat.name }} collection" loading="lazy">
+        {% else %}
+          <img src="https://images.pexels.com/photos/37523792/pexels-photo-37523792.jpeg?auto=compress&cs=tinysrgb&w=500&h=650&fit=crop" alt="{{ cat.name }} collection" loading="lazy">
+        {% endif %}
+        <span class="category-card__label">{{ cat.name }}</span>
+      </a>
+      {% empty %}
+        <p>No categories available.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section bg-sand">
+  <div class="container">
+    <div class="section-head text-center">
+      <span class="eyebrow" style="justify-content:center; color:var(--color-thread-gold)">Signature Pieces</span>
+      <h2>Most Loved</h2>
+    </div>
+    <div class="product-grid reveal-stagger">
+      {% for product in featured_products %}
+        {% include "partials/_product_card.html" with product=product %}
+      {% empty %}
+        <p>No featured products available.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Just In</span>
+        <h2>New Arrivals</h2>
+      </div>
+    </div>
+    <div class="product-grid reveal-stagger">
+      {% for product in new_arrivals %}
+        {% include "partials/_product_card.html" with product=product %}
+      {% empty %}
+        <p>No new arrivals yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

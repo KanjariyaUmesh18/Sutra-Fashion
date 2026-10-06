@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Messages — SUTRA{% endblock %}
+
+{% block extra_css %}
+<style>
+  .account-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .account-layout { grid-template-columns: 1fr; }
+  }
+  .account-sidebar {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    position: sticky;
+    top: calc(var(--nav-height) + var(--space-md));
+  }
+  @media (max-width: 768px) {
+    .account-sidebar { position: static; }
+  }
+  .account-avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--color-ivory-deep);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto var(--space-md);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-oxblood);
+  }
+  .account-nav { display: flex; flex-direction: column; }
+  .account-nav a {
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm) 0.25rem;
+    border-bottom: 1px solid var(--color-line);
+    font-size: var(--fs-body-sm);
+    color: var(--color-ink);
+    transition: color 0.15s ease, padding-left 0.15s ease;
+  }
+  .account-nav a:hover { color: var(--color-oxblood); padding-left: 0.35rem; }
+  .account-nav a.is-active { color: var(--color-oxblood); font-weight: 600; }
+  .account-nav a:last-of-type { border-bottom: none; }
+
+  .account-content h2 {
+    font-family: var(--font-display);
+    font-size: var(--fs-display-sm);
+    margin-bottom: var(--space-2xs);
+  }
+
+  .msg-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+  }
+  .msg-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-sm);
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  .msg-card__date { font-size: var(--fs-caption); color: var(--color-text-muted); }
+  .msg-card__body {
+    padding: var(--space-md);
+    background: var(--color-ivory);
+    border-radius: var(--radius-md);
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: var(--fs-body-sm);
+  }
+  .msg-card__reply {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    border-left: 3px solid var(--color-oxblood);
+    background: var(--color-ivory-deep);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: var(--fs-body-sm);
+  }
+  .msg-card__reply-label {
+    font-weight: 600;
+    color: var(--color-oxblood);
+    display: block;
+    margin-bottom: var(--space-2xs);
+    font-size: var(--fs-caption);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>My Messages</h1>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <div class="account-layout">
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <div class="account-avatar">{{ user.first_name|default:user.username|slice:":1"|upper }}</div>
+        <nav class="account-nav">
+          <a href="{% url 'profile' %}">Profile Overview</a>
+          <a href="{% url 'order_history' %}">Order History</a>
+          <a href="{% url 'address_list' %}">Saved Addresses</a>
+          <a href="{% url 'my_messages' %}" class="is-active">My Messages</a>
+          <a href="{% url 'edit_profile' %}">Account Settings</a>
+        </nav>
+        <form action="{% url 'logout' %}" method="post" style="margin-top:var(--space-md)">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--outline btn--block">Sign Out</button>
+        </form>
+      </aside>
+
+      <!-- Content -->
+      <div class="account-content">
+        <h2>My Messages</h2>
+        <p class="text-muted" style="margin-bottom:var(--space-lg)">
+          Messages you've sent us via the Contact page, and our replies.
+        </p>
+
+        {% if inquiries %}
+          {% for inquiry in inquiries %}
+          <div class="msg-card">
+            <div class="msg-card__header">
+              <div>
+                {% if inquiry.is_replied %}
+                  <span class="badge badge--success">Replied</span>
+                {% else %}
+                  <span class="badge badge--gold">Awaiting Reply</span>
+                {% endif %}
+              </div>
+              <span class="msg-card__date">Sent {{ inquiry.created_at|date:"M d, Y H:i" }}</span>
+            </div>
+
+            <div class="msg-card__body">{{ inquiry.message }}</div>
+
+            {% if inquiry.is_replied %}
+            <div class="msg-card__reply">
+              <span class="msg-card__reply-label">SUTRA Team replied &middot; {{ inquiry.replied_at|date:"M d, Y H:i" }}</span>
+              {{ inquiry.reply }}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="msg-card text-center">
+            <p class="text-muted">You haven't sent us any messages yet.</p>
+            <a href="{% url 'contact' %}" class="btn btn--outline btn--sm" style="margin-top:var(--space-md)">Contact Us</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,93 @@
+/* ============================================================
+   SUTRA — Design Tokens
+   "Sutra" (सूत्र) — thread. Every token here supports the brand's
+   signature motif: the hand-stitched running thread that ties
+   the collection together.
+   ============================================================ */
+
+:root {
+  /* ---- Color: Ink, Ivory & Thread ---- */
+  --color-ink: #111111;          /* stark near-black — primary text/dark surfaces */
+  --color-ink-soft: #333333;     /* lifted ink for secondary text */
+  --color-ivory: #fcfbf9;        /* very clean warm white background */
+  --color-ivory-deep: #f2efe9;   /* slightly deeper card background */
+  --color-oxblood: #5a1823;      /* deep luxurious maroon primary CTA */
+  --color-oxblood-dark: #3d0f17; /* pressed / hover state */
+  --color-thread-gold: #c19a5b;  /* refined gold accent */
+  --color-rose-taupe: #a38173;   /* secondary warm accent — decorative use only (3.5:1, fails AA for text) */
+  --color-rose-taupe-text: #82675c; /* same hue, darkened for AA-compliant caption/label text (5:1 on ivory) */
+  --color-sage: #6b7a5e;         /* muted botanical accent */
+  --color-line: #e6e1da;         /* hairline borders on ivory */
+  --color-line-dark: rgba(250, 245, 238, 0.12); /* hairline borders on ink */
+
+  /* ---- Semantic ---- */
+  --color-bg: var(--color-ivory);
+  --color-surface: #ffffff;
+  --color-text: var(--color-ink);
+  --color-text-muted: #666666;
+  --color-danger: #a12b2b;
+  --color-success: var(--color-sage);
+
+  /* ---- Typography ----
+     Single source of truth: every heading/body/caption style across the
+     User Panel and Admin Panel reads from these three variables, so
+     changing the font here is enough to update the whole project. */
+  --font-display: Calibri, 'Segoe UI', Arial, sans-serif;
+  --font-body: Calibri, 'Segoe UI', Arial, sans-serif;
+  --font-caption: Calibri, 'Segoe UI', Arial, sans-serif;
+
+  --fs-display-xl: clamp(2rem, 3vw + 0.75rem, 4.5rem);
+  --fs-display-lg: clamp(1.625rem, 2vw + 0.75rem, 3rem);
+  --fs-display-md: clamp(1.375rem, 1.5vw + 0.625rem, 2.25rem);
+  --fs-display-sm: clamp(1.125rem, 0.8vw + 0.75rem, 1.5rem);
+  --fs-body-lg: 1.0625rem;
+  --fs-body: 1rem;
+  --fs-body-sm: 0.875rem;
+  --fs-caption: 0.75rem;
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.3;
+  --lh-normal: 1.6;
+
+  --ls-eyebrow: 0.15em;
+  --ls-nav: 0.05em;
+
+  /* ---- Spacing scale ---- */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2.5rem;
+  --space-xl: 4rem;
+  --space-2xl: 6rem;
+  --space-3xl: 9rem;
+
+  /* ---- Layout ---- */
+  --container-max: 1440px;
+  --container-pad: clamp(1.25rem, 5vw, 4rem);
+  --nav-height: 80px;
+
+  /* ---- Radius (sharper for premium feel) ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  /* ---- Shadow (softer, more elegant) ---- */
+  --shadow-soft: 0 4px 20px rgba(17, 17, 17, 0.04);
+  --shadow-card: 0 10px 30px rgba(17, 17, 17, 0.06);
+  --shadow-card-hover: 0 20px 40px rgba(17, 17, 17, 0.08);
+  --shadow-lift: 0 30px 60px rgba(17, 17, 17, 0.12);
+
+  /* ---- Motion ---- */
+  --ease-luxury: cubic-bezier(0.25, 1, 0.25, 1); /* Smoother, classic ease-out */
+  --dur-fast: 200ms;
+  --dur-med: 400ms;
+  --dur-slow: 600ms;
+
+  /* ---- Z-index ---- */
+  --z-nav: 100;
+  --z-overlay: 200;
+  --z-toast: 300;
+}

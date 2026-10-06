@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Categories — SUTRA{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <span class="eyebrow" style="justify-content:center; color:var(--color-thread-gold)">Collections</span>
+    <h1>All Categories</h1>
+    <p class="text-muted" style="max-width:500px; margin:var(--space-sm) auto 0">
+      Browse our complete range of considered ethnic and contemporary wear, curated for the modern woman.
+    </p>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container">
+    <div class="category-grid reveal-stagger">
+      {% for cat in categories %}
+      <a href="{% url 'category_detail' cat.slug %}" class="category-card">
+        {% if cat.image %}
+          <img src="{{ cat.image.url }}" alt="{{ cat.name }} collection" loading="lazy">
+        {% else %}
+          <img src="https://images.pexels.com/photos/37523792/pexels-photo-37523792.jpeg?auto=compress&cs=tinysrgb&w=500&h=650&fit=crop" alt="{{ cat.name }} collection" loading="lazy">
+        {% endif %}
+        <span class="category-card__label">{{ cat.name }}</span>
+        <span class="badge" style="position:absolute; top:var(--space-sm); right:var(--space-sm)">{{ cat.product_count }} Items</span>
+      </a>
+      {% empty %}
+        <p>No categories available.</p>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}

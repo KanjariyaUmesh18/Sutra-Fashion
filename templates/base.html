@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}SUTRA — Considered Ethnic &amp; Contemporary Womenswear{% endblock %}</title>
+{% block meta %}
+<meta name="description" content="SUTRA is a premium ladies fashion label — Kurti, Sarees, Lehenga, Dresses, Gowns and contemporary western wear, cut with intention.">
+{% endblock %}
+<link rel="stylesheet" href="{% static 'css/variables.css' %}">
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/components.css' %}">
+<link rel="stylesheet" href="{% static 'css/layout.css' %}">
+<link rel="stylesheet" href="{% static 'css/animations.css' %}">
+<link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+
+{% include "partials/_navbar.html" %}
+
+{% if messages %}
+<div class="messages-container">
+  {% for message in messages %}
+  <div class="toast show toast--{{ message.tags }}">
+    <div class="toast__content">
+      <div class="toast__title">{{ message }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}
+{% endblock %}
+
+{% include "partials/_footer.html" %}
+
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/misc.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

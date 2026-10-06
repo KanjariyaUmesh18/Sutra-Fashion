@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number }} — SUTRA{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>Order #{{ order.order_number }}</h1>
+    <p class="text-muted" style="margin-top:var(--space-sm)">Placed on {{ order.created_at|date:"F d, Y" }}</p>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <div class="profile-layout">
+      <!-- Sidebar -->
+      <aside class="profile-card">
+        <nav class="profile-nav">
+          <a href="{% url 'profile' %}">Profile Overview</a>
+          <a href="{% url 'order_history' %}" class="is-active">Order History</a>
+          <a href="{% url 'address_list' %}">Saved Addresses</a>
+          <a href="{% url 'my_messages' %}">My Messages</a>
+          <a href="{% url 'edit_profile' %}">Account Settings</a>
+        </nav>
+      </aside>
+
+      <!-- Content -->
+      <div>
+
+        <div class="flex-between" style="margin-bottom:var(--space-lg); align-items:center; flex-wrap:wrap; gap:var(--space-md)">
+          <div class="flex gap-sm">
+            {% if order.status == 'delivered' %}
+              <span class="badge badge--success">{{ order.get_status_display }}</span>
+            {% elif order.status == 'cancelled' %}
+              <span class="badge badge--danger">{{ order.get_status_display }}</span>
+            {% elif order.status == 'shipped' or order.status == 'processing' or order.status == 'confirmed' %}
+              <span class="badge badge--gold">{{ order.get_status_display }}</span>
+            {% else %}
+              <span class="badge">{{ order.get_status_display }}</span>
+            {% endif %}
+            <span class="badge badge--gold">{{ order.get_payment_method_display }}</span>
+          </div>
+          {% if order.status == 'shipped' %}
+            <button class="btn btn--outline btn--sm">Track Shipment</button>
+          {% endif %}
+        </div>
+
+        <div class="info-grid" style="margin-bottom:var(--space-xl)">
+          <div class="info-card">
+            <h3 class="info-card__title">Shipping Address</h3>
+            <p class="text-muted text-sm">
+              {{ order.shipping_name }}<br>
+              {{ order.shipping_address_line1 }}<br>
+              {% if order.shipping_address_line2 %}{{ order.shipping_address_line2 }}<br>{% endif %}
+              {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_pincode }}<br>
+              Phone: {{ order.shipping_phone }}
+            </p>
+          </div>
+          <div class="info-card">
+            <h3 class="info-card__title">Order Summary</h3>
+            <div class="flex-between text-sm text-muted" style="margin-bottom:var(--space-2xs)">
+              <span>Subtotal</span><span>₹{{ order.subtotal }}</span>
+            </div>
+            <div class="flex-between text-sm text-muted" style="margin-bottom:var(--space-2xs)">
+              <span>Shipping</span><span>₹{{ order.shipping_charge }}</span>
+            </div>
+            <hr style="margin:var(--space-sm) 0; border:none; border-top:1px solid var(--color-line)">
+            <div class="flex-between" style="font-weight:600">
+              <span>Total</span><span>₹{{ order.total }}</span>
+            </div>
+          </div>
+        </div>
+
+        <h2 style="font-size:var(--fs-display-sm); margin-bottom:var(--space-md)">Items in Order</h2>
+        <div class="cart-items">
+          {% for item in order.items.all %}
+          <div class="cart-item" style="padding:var(--space-md); border-bottom:1px solid var(--color-line)">
+            <a href="{% if item.product %}{% url 'product_detail' item.product.slug %}{% else %}#{% endif %}" class="cart-item__img" style="width:80px; height:100px">
+              {% if item.product and item.product.images.first %}
+                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product_name }}">
+              {% else %}
+                <div style="width:100%; height:100%; background:var(--color-ivory-deep)"></div>
+              {% endif %}
+            </a>
+            <div class="cart-item__info">
+              <h3 class="cart-item__title" style="margin-bottom:4px">
+                {% if item.product %}
+                <a href="{% url 'product_detail' item.product.slug %}">{{ item.product_name }}</a>
+                {% else %}
+                {{ item.product_name }}
+                {% endif %}
+              </h3>
+              <div class="cart-item__meta text-sm">
+                <span>Size: {{ item.size }}</span>
+                {% if item.color %}<span>Colour: {{ item.color }}</span>{% endif %}
+              </div>
+              <div class="flex-between text-sm" style="margin-top:var(--space-sm)">
+                <span class="text-muted">Qty: {{ item.quantity }}</span>
+                <strong>₹{{ item.line_total }}</strong>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

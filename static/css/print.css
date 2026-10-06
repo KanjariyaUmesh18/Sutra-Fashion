@@ -1,0 +1,221 @@
+/* ================= PRINT LAYOUTS ================= */
+/* Used by the Invoice and Shipping Label pages. Optimized for A4 and for
+   the browser's native print dialog (File > Print / Ctrl+P). */
+
+:root {
+  --print-ink: #1a1a1a;
+  --print-muted: #6b6b6b;
+  --print-line: #d8d3c8;
+  --print-accent: #7a1f2b;
+}
+
+* { box-sizing: border-box; }
+
+body.print-page {
+  font-family: var(--font-body);
+  color: var(--print-ink);
+  background: #f2efe9;
+  margin: 0;
+  padding: var(--space-xl, 2rem) 0;
+}
+
+.print-toolbar {
+  max-width: 800px;
+  margin: 0 auto var(--space-md, 1rem);
+  padding: 0 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.print-toolbar button,
+.print-toolbar a {
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 4px;
+  border: 1px solid var(--print-ink);
+  background: var(--print-ink);
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+}
+.print-toolbar a.secondary {
+  background: transparent;
+  color: var(--print-ink);
+}
+
+.print-sheet {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 3rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.print-sheet--label {
+  max-width: 420px;
+  padding: 2rem;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--print-ink);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.invoice-header__brand {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  letter-spacing: 0.05em;
+}
+.invoice-header__brand small {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--print-muted);
+  margin-top: 2px;
+}
+.invoice-header__meta {
+  text-align: right;
+  font-size: 0.85rem;
+  color: var(--print-muted);
+}
+.invoice-header__meta strong { color: var(--print-ink); }
+
+.invoice-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin: 0 0 0.25rem;
+}
+
+.invoice-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+.invoice-parties h4 {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--print-muted);
+  margin: 0 0 0.4rem;
+}
+.invoice-parties p { margin: 0; line-height: 1.5; font-size: 0.92rem; }
+
+table.invoice-items {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+table.invoice-items th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--print-muted);
+  border-bottom: 1px solid var(--print-ink);
+  padding: 0.5rem 0.4rem;
+}
+table.invoice-items td {
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid var(--print-line);
+  vertical-align: top;
+}
+table.invoice-items td.num,
+table.invoice-items th.num { text-align: right; }
+
+.invoice-totals {
+  margin-left: auto;
+  width: 280px;
+  font-size: 0.92rem;
+}
+.invoice-totals .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+}
+.invoice-totals .row.grand {
+  border-top: 2px solid var(--print-ink);
+  margin-top: 0.4rem;
+  padding-top: 0.6rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.invoice-footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--print-line);
+  font-size: 0.78rem;
+  color: var(--print-muted);
+  text-align: center;
+}
+
+.badge-payment {
+  display: inline-block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 3px;
+  border: 1px solid var(--print-accent);
+  color: var(--print-accent);
+}
+
+/* ── Shipping label ────────────────────────────────────── */
+.label-box {
+  border: 2px solid var(--print-ink);
+  border-radius: 6px;
+  padding: 1.5rem;
+}
+.label-section {
+  padding: 1rem 0;
+  border-bottom: 1px dashed var(--print-line);
+}
+.label-section:last-child { border-bottom: none; }
+.label-section h4 {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--print-muted);
+  margin: 0 0 0.35rem;
+}
+.label-section .to-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem;
+}
+.label-section p { margin: 0; line-height: 1.55; font-size: 1rem; }
+.label-order-no {
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+.cod-stamp {
+  display: inline-block;
+  margin-top: 0.75rem;
+  border: 2px solid var(--print-accent);
+  color: var(--print-accent);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  transform: rotate(-3deg);
+}
+
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body.print-page { background: #fff; padding: 0; }
+  .print-toolbar { display: none !important; }
+  .print-sheet {
+    box-shadow: none;
+    max-width: 100%;
+    padding: 0;
+  }
+}

@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard — SUTRA Admin{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/variables.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+  <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin/admin.css' %}">
+</head>
+
+<body>
+
+  <div class="admin-layout">
+    <!-- SIDEBAR -->
+    {% include "partials/_admin_sidebar.html" %}
+
+    <!-- MAIN -->
+    <div class="admin-main">
+
+      <!-- TOPBAR -->
+      <header class="admin-topbar">
+        <div class="admin-topbar__left">
+          <button class="admin-topbar__toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+            <svg viewBox="0 0 24 24">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          {% block topbar_left %}
+          <h2>Dashboard</h2>
+          {% endblock %}
+        </div>
+        <div class="admin-topbar__right">
+          <a href="{% url 'home' %}" target="_blank" class="btn btn--outline btn--sm" style="margin-right:var(--space-md)">View Store</a>
+          <a href="{% url 'admin_profile' %}" class="admin-user-menu" style="text-decoration:none; color:inherit">
+            {% if request.user.profile.avatar %}
+            <div class="avatar-placeholder" style="padding:0; overflow:hidden">
+              <img src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" style="width:100%; height:100%; object-fit:cover">
+            </div>
+            {% else %}
+            <div class="avatar-placeholder">{{ request.user.username|make_list|first|upper }}</div>
+            {% endif %}
+            <span>{{ request.user.username }}</span>
+          </a>
+        </div>
+      </header>
+
+      {% if messages %}
+      <div style="padding: 1rem 2rem 0;">
+        {% for message in messages %}
+        <div class="toast show toast--{{ message.tags }}" style="position:relative; margin-bottom:1rem; width:100%; max-width:100%;">
+          <div class="toast__content">
+            <div class="toast__title">{{ message }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- CONTENT -->
+      <div class="admin-content">
+        {% block content %}
+        {% endblock %}
+      </div>
+
+    </div>
+  </div>
+
+  <script src="{% static 'js/admin/admin.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

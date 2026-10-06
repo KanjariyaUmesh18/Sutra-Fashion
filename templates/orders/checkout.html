@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout — SUTRA{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ============================================================
+     This page was almost entirely unstyled. None of these classes
+     existed anywhere in the project: .checkout-layout,
+     .checkout-form, .checkout-summary, .cart-summary__divider,
+     .cart-summary__row, .cart-summary__total, .admin-card (which
+     also just doesn't belong on a user-facing page — leftover from
+     copy-pasting an admin template). Two variables were also
+     undefined: var(--fs-lg) and var(--color-border). All fixed
+     below using the project's real design tokens.
+     ============================================================ */
+
+  .checkout-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  @media (max-width: 992px) {
+    .checkout-layout { grid-template-columns: 1fr; }
+  }
+
+  .checkout-form h2 {
+    font-family: var(--font-display);
+    font-size: var(--fs-display-sm);
+  }
+
+  /* ---- Saved-address summary card ---- */
+  .checkout-address-card {
+    background: var(--color-ivory-deep);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+  }
+
+  /* ---- Address form field grid ---- */
+  .checkout-address-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md) var(--space-lg);
+  }
+  @media (max-width: 560px) {
+    .checkout-address-fields { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Payment method options ---- */
+  .checkout-payment-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+    margin-bottom: var(--space-sm);
+    padding: var(--space-md);
+    border: 1.5px solid var(--color-line);
+    border-radius: var(--radius-md);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .checkout-payment-option:hover { border-color: var(--color-ink); }
+  .checkout-payment-option:has(input:checked) {
+    border-color: var(--color-oxblood);
+    background: var(--color-ivory-deep);
+  }
+  .checkout-payment-option input[type="radio"] {
+    width: 18px; height: 18px;
+    accent-color: var(--color-oxblood);
+    cursor: pointer;
+  }
+
+  /* ---- Order summary sidebar ---- */
+  .checkout-summary {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    position: sticky;
+    top: calc(var(--nav-height) + var(--space-md));
+  }
+  .checkout-summary h2 {
+    font-family: var(--font-display);
+    font-size: var(--fs-display-sm);
+  }
+  .checkout-summary__items {
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: var(--space-2xs);
+  }
+  .checkout-summary__divider {
+    border: none;
+    border-top: 1px solid var(--color-line);
+    margin: var(--space-md) 0;
+  }
+  .checkout-summary__row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+    font-size: var(--fs-body-sm);
+  }
+  .checkout-summary__total {
+    font-size: 1.15rem;
+    font-weight: 600;
+    font-family: var(--font-display);
+    margin-bottom: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>Checkout</h1>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <form method="post" class="checkout-layout">
+      {% csrf_token %}
+
+      <div class="checkout-form">
+        <h2 style="margin-bottom:var(--space-md)">Shipping Information</h2>
+
+        {% if default_address %}
+        <!-- Saved default address summary — shown by default, no re-typing needed -->
+        <div class="checkout-address-card" id="addressSummaryCard">
+          <div class="flex-between" style="align-items:flex-start">
+            <div>
+              <p style="margin-bottom:2px"><strong>{{ default_address.name }}</strong> &nbsp;•&nbsp; {{ default_address.phone }}</p>
+              <p class="text-sm text-muted" style="margin-bottom:0">
+                {{ default_address.line1 }}{% if default_address.line2 %}, {{ default_address.line2 }}{% endif %},
+                {{ default_address.city }}, {{ default_address.state }} {{ default_address.pincode }}
+              </p>
+            </div>
+            <button type="button" class="btn btn--outline btn--sm" id="editAddressBtn">Edit Address</button>
+          </div>
+          {% if addresses.count > 1 %}
+          <div class="flex gap-sm" style="flex-wrap:wrap; margin-top:var(--space-sm)">
+            {% for addr in addresses %}
+            {% if addr.id != default_address.id %}
+            <button type="button" class="btn btn--outline btn--sm js-autofill-address"
+                    data-name="{{ addr.name }}" data-phone="{{ addr.phone }}"
+                    data-line1="{{ addr.line1 }}" data-line2="{{ addr.line2 }}"
+                    data-city="{{ addr.city }}" data-state="{{ addr.state }}" data-pincode="{{ addr.pincode }}">
+              Use {{ addr.name }} ({{ addr.city }})
+            </button>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="checkout-address-fields" id="addressFormFields" style="{% if default_address %}display:none;{% endif %}">
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label" for="id_shipping_name">Full Name</label>
+            <input type="text" name="shipping_name" class="form-control" id="id_shipping_name" value="{{ form.shipping_name.value|default:'' }}" required>
+            {{ form.shipping_name.errors }}
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label" for="id_shipping_phone">Phone Number</label>
+            <input type="text" name="shipping_phone" class="form-control" id="id_shipping_phone" value="{{ form.shipping_phone.value|default:'' }}" required>
+            {{ form.shipping_phone.errors }}
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label" for="id_shipping_address_line1">Address Line 1</label>
+            <input type="text" name="shipping_address_line1" class="form-control" id="id_shipping_address_line1" value="{{ form.shipping_address_line1.value|default:'' }}" required>
+            {{ form.shipping_address_line1.errors }}
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label" for="id_shipping_address_line2">Address Line 2 (Optional)</label>
+            <input type="text" name="shipping_address_line2" class="form-control" id="id_shipping_address_line2" value="{{ form.shipping_address_line2.value|default:'' }}">
+            {{ form.shipping_address_line2.errors }}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_shipping_city">City</label>
+            <input type="text" name="shipping_city" class="form-control" id="id_shipping_city" value="{{ form.shipping_city.value|default:'' }}" required>
+            {{ form.shipping_city.errors }}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="id_shipping_state">State</label>
+            <input type="text" name="shipping_state" class="form-control" id="id_shipping_state" value="{{ form.shipping_state.value|default:'' }}" required>
+            {{ form.shipping_state.errors }}
+          </div>
+
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label" for="id_shipping_pincode">Pincode</label>
+            <input type="text" name="shipping_pincode" class="form-control" id="id_shipping_pincode" value="{{ form.shipping_pincode.value|default:'' }}" required>
+            {{ form.shipping_pincode.errors }}
+          </div>
+        </div>
+
+        <h2 style="margin:var(--space-xl) 0 var(--space-md)">Payment Method</h2>
+        {% if not cod_available %}
+        <p class="text-sm text-muted" style="margin-bottom:var(--space-sm)">One or more items in your bag don't support Cash on Delivery, so only online payment is available for this order.</p>
+        {% endif %}
+        <div class="form-group">
+          {% for radio in form.payment_method %}
+          <label class="checkout-payment-option">
+            {{ radio.tag }}
+            <span style="font-weight:500">{{ radio.choice_label }}</span>
+          </label>
+          {% endfor %}
+          {{ form.payment_method.errors }}
+        </div>
+      </div>
+
+      <aside class="checkout-summary">
+        <h2 style="margin-bottom:var(--space-md)">Order Summary</h2>
+        <div class="checkout-summary__items">
+          {% for item in cart.items.all %}
+          <div class="flex-between text-sm" style="margin-bottom:var(--space-xs)">
+            <span>{{ item.quantity }}x {{ item.product.name }}</span>
+            <span>₹{{ item.line_total }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <hr class="checkout-summary__divider">
+        <div class="checkout-summary__row">
+          <span>Subtotal</span>
+          <span>₹{{ cart.total }}</span>
+        </div>
+        <div class="checkout-summary__row">
+          <span>Shipping</span>
+          <span>{% if shipping_charge %}₹{{ shipping_charge }}{% else %}Free{% endif %}</span>
+        </div>
+        <hr class="checkout-summary__divider">
+        <div class="checkout-summary__row checkout-summary__total">
+          <span>Total To Pay</span>
+          <span>₹{{ order_total }}</span>
+        </div>
+
+        <button type="submit" class="btn btn--block" style="margin-top:var(--space-lg)">Place Order</button>
+      </aside>
+    </form>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function fillAddress(data) {
+    document.getElementById('id_shipping_name').value = data.name || '';
+    document.getElementById('id_shipping_phone').value = data.phone || '';
+    document.getElementById('id_shipping_address_line1').value = data.line1 || '';
+    document.getElementById('id_shipping_address_line2').value = data.line2 || '';
+    document.getElementById('id_shipping_city').value = data.city || '';
+    document.getElementById('id_shipping_state').value = data.state || '';
+    document.getElementById('id_shipping_pincode').value = data.pincode || '';
+  }
+
+  document.querySelectorAll('.js-autofill-address').forEach(btn => {
+    btn.addEventListener('click', () => {
+      fillAddress(btn.dataset);
+      var summary = document.getElementById('addressSummaryCard');
+      var fields = document.getElementById('addressFormFields');
+      if (summary) summary.style.display = 'none';
+      if (fields) fields.style.display = 'grid';
+    });
+  });
+
+  var editBtn = document.getElementById('editAddressBtn');
+  if (editBtn) {
+    editBtn.addEventListener('click', () => {
+      document.getElementById('addressSummaryCard').style.display = 'none';
+      document.getElementById('addressFormFields').style.display = 'grid';
+      document.getElementById('id_shipping_name').focus();
+    });
+  }
+</script>
+{% endblock %}

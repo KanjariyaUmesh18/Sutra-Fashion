@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} — SUTRA{% endblock %}
+
+{% block content %}
+<header class="category-page-header" id="categoryPageHeader">
+  <div class="category-page-header__bg" style="background-image: url('{% if category.image %}{{ category.image.url }}{% else %}https://images.pexels.com/photos/37523792/pexels-photo-37523792.jpeg{% endif %}'); background-size: cover; background-position: center; position: absolute; inset: 0; opacity: 0.35;"></div>
+  <div class="container category-page-header__inner">
+    <span class="eyebrow" style="color:var(--color-thread-gold)">{{ category.name }}</span>
+    <h1>{{ category.name }}</h1>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="{% url 'home' %}">Home</a><span class="breadcrumb__sep">/</span>
+      <a href="{% url 'categories' %}">Categories</a><span class="breadcrumb__sep">/</span>
+      <span>{{ category.name }}</span>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="container">
+    <div class="listing-layout">
+
+      <!-- FILTERS PANEL -->
+      <aside class="filters-panel" id="filtersPanel">
+        <div class="flex-between" style="margin-bottom:var(--space-md)">
+          <strong>Filters</strong>
+          <div class="flex gap-sm">
+            <button class="btn btn--sm btn--outline filters-panel__close" id="closeFiltersBtn" aria-label="Close filters">✕ Close</button>
+            <a href="{% url 'category_detail' category.slug %}" class="text-sm" style="text-decoration:underline; color:var(--color-oxblood)">Clear all</a>
+          </div>
+        </div>
+
+        <div class="filters-panel__group">
+          <div class="filters-panel__title">Sort By</div>
+          <select class="form-control" name="sort" onchange="window.location.href=this.value">
+            <option value="?sort=" {% if not request.GET.sort %}selected{% endif %}>Recommended</option>
+            <option value="?sort=new" {% if request.GET.sort == 'new' %}selected{% endif %}>New Arrivals</option>
+            <option value="?sort=price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+            <option value="?sort=price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          </select>
+        </div>
+      </aside>
+
+      <!-- PRODUCTS -->
+      <div class="listing-content">
+        <div class="flex-between" style="margin-bottom:var(--space-md)">
+          <div class="text-sm text-muted">{{ products.count }} results found</div>
+          <button class="btn btn--outline btn--sm mobile-filter-toggle" id="openFiltersBtn">
+            <svg viewBox="0 0 24 24" style="width:16px; height:16px; display:inline-block; vertical-align:middle"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filter
+          </button>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+          {% for product in products %}
+            {% include "partials/_product_card.html" with product=product %}
+          {% empty %}
+            <p>No products found in this category.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+{% endblock %}

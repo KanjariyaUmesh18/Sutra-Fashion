@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error — SUTRA{% endblock %}
+
+{% block content %}
+<main class="section text-center" style="min-height:60vh; display:flex; align-items:center; justify-content:center">
+  <div class="container">
+    <h1 style="font-size:120px; color:var(--color-sand); line-height:1; margin-bottom:var(--space-md)">500</h1>
+    <h2 style="font-size:var(--fs-xl); margin-bottom:var(--space-sm)">Internal Server Error</h2>
+    <p class="text-muted" style="margin-bottom:var(--space-lg); max-width:400px; margin-inline:auto">
+      Something went wrong on our end. Please try again later or contact support if the issue persists.
+    </p>
+    <a href="{% url 'home' %}" class="btn">Return to Homepage</a>
+  </div>
+</main>
+{% endblock %}

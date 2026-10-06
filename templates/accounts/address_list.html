@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Saved Addresses — SUTRA{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ============================================================
+     Same root cause as the other account pages: .account-layout /
+     .account-sidebar / .account-nav / .account-content /
+     .account-card / .account-grid were never defined anywhere.
+     Two extra bugs specific to this page:
+       1. var(--fs-md) is undefined (no such variable exists).
+       2. The "default address" card set border-color via inline
+          style, but .account-card had no border-width/border-style
+          declared anywhere, so that gold border was invisible no
+          matter what color it was set to.
+     ============================================================ */
+
+  .account-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .account-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Sidebar ---- */
+  .account-sidebar {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    position: sticky;
+    top: calc(var(--nav-height) + var(--space-md));
+  }
+  @media (max-width: 768px) {
+    .account-sidebar { position: static; }
+  }
+  .account-nav { display: flex; flex-direction: column; }
+  .account-nav a {
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm) 0.25rem;
+    border-bottom: 1px solid var(--color-line);
+    font-size: var(--fs-body-sm);
+    color: var(--color-ink);
+    transition: color 0.15s ease, padding-left 0.15s ease;
+  }
+  .account-nav a:hover { color: var(--color-oxblood); padding-left: 0.35rem; }
+  .account-nav a.is-active { color: var(--color-oxblood); font-weight: 600; }
+  .account-nav a:last-of-type { border-bottom: none; }
+
+  /* ---- Content ---- */
+  .account-content h2 {
+    font-family: var(--font-display);
+    font-size: var(--fs-display-sm);
+  }
+
+  /* ---- Address cards grid: auto-fill so 1 saved address doesn't
+     leave a giant blank area, same fix pattern as the product grid ---- */
+  .account-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-md);
+  }
+
+  .account-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    border: 2px solid transparent; /* reserved so .border-gold has something to color */
+  }
+  .account-card h3 {
+    font-family: var(--font-display);
+    font-size: var(--fs-body-lg);
+    margin: 0;
+  }
+  .account-card.border-gold { border-color: var(--color-thread-gold); }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>Saved Addresses</h1>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <div class="account-layout">
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <nav class="account-nav">
+          <a href="{% url 'profile' %}">Profile Overview</a>
+          <a href="{% url 'order_history' %}">Order History</a>
+          <a href="{% url 'address_list' %}" class="is-active">Saved Addresses</a>
+          <a href="{% url 'my_messages' %}">My Messages</a>
+          <a href="{% url 'edit_profile' %}">Account Settings</a>
+        </nav>
+        <form action="{% url 'logout' %}" method="post" style="margin-top:var(--space-md)">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--outline btn--block">Sign Out</button>
+        </form>
+      </aside>
+
+      <!-- Content -->
+      <div class="account-content">
+        <div class="flex-between" style="margin-bottom:var(--space-lg)">
+          <h2>Your Addresses</h2>
+          <a href="{% url 'address_add' %}" class="btn btn--sm">Add New Address</a>
+        </div>
+
+        <div class="account-grid">
+          {% for address in addresses %}
+          <div class="account-card {% if address.is_default %}border-gold{% endif %}">
+            <div class="flex-between" style="margin-bottom:var(--space-sm)">
+              <h3>{{ address.name }} {% if address.is_default %}<span class="badge" style="font-size:0.75rem">Default</span>{% endif %}</h3>
+              <div class="flex gap-sm">
+                <a href="{% url 'address_edit' address.id %}" class="text-sm" style="color:var(--color-sage)">Edit</a>
+                <a href="{% url 'address_delete' address.id %}" class="text-sm" style="color:var(--color-oxblood)">Delete</a>
+              </div>
+            </div>
+
+            <p class="text-muted" style="margin-bottom:var(--space-md)">
+              {{ address.line1 }}<br>
+              {% if address.line2 %}{{ address.line2 }}<br>{% endif %}
+              {{ address.city }}, {{ address.state }} {{ address.pincode }}<br>
+              Phone: {{ address.phone }}
+            </p>
+
+            {% if not address.is_default %}
+            <form method="post" action="{% url 'address_set_default' address.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn--outline btn--sm">Set as Default</button>
+            </form>
+            {% endif %}
+          </div>
+          {% empty %}
+          <div class="account-card" style="grid-column:1/-1; text-align:center">
+            <p class="text-muted" style="margin-bottom:var(--space-md)">You haven't saved any addresses yet.</p>
+            <a href="{% url 'address_add' %}" class="btn">Add Address</a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

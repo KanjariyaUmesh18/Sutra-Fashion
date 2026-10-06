@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results — SUTRA{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="container text-center">
+    <h1>Search SUTRA</h1>
+    <form class="search-box" method="GET" action="{% url 'search' %}" style="margin:var(--space-md) auto 0; max-width:600px">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" name="q" value="{{ query }}" placeholder="Search for 'Kurti', 'Silk Saree'…" aria-label="Search">
+    </form>
+    {% if query %}
+    <p class="text-muted" style="margin-top:var(--space-md)">{{ products.count }} results for "{{ query }}"</p>
+    {% endif %}
+  </div>
+</header>
+
+<main class="section">
+  <div class="container">
+    {% if query %}
+      <div class="product-grid">
+        {% for product in products %}
+          {% include "partials/_product_card.html" with product=product %}
+        {% empty %}
+          <p>No products matched your search.</p>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-center text-muted">Enter a search term above to find products.</p>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}

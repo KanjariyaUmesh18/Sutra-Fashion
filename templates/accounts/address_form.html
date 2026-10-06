@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Address — SUTRA{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ============================================================
+     Same root cause as the Profile page: .account-layout /
+     .account-sidebar / .account-nav / .account-content /
+     .account-card / .account-grid are used here but were never
+     defined in any project stylesheet, so the layout, sidebar and
+     form grid were all rendering unstyled. Fixed inline so this
+     page works standalone.
+     ============================================================ */
+
+  .account-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .account-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Sidebar ---- */
+  .account-sidebar {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    position: sticky;
+    top: calc(var(--nav-height) + var(--space-md));
+  }
+  @media (max-width: 768px) {
+    .account-sidebar { position: static; }
+  }
+  .account-nav { display: flex; flex-direction: column; }
+  .account-nav a {
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm) 0.25rem;
+    border-bottom: 1px solid var(--color-line);
+    font-size: var(--fs-body-sm);
+    color: var(--color-ink);
+    transition: color 0.15s ease, padding-left 0.15s ease;
+  }
+  .account-nav a:hover { color: var(--color-oxblood); padding-left: 0.35rem; }
+  .account-nav a.is-active { color: var(--color-oxblood); font-weight: 600; }
+  .account-nav a:last-of-type { border-bottom: none; }
+
+  /* ---- Content / form card ---- */
+  .account-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+  }
+
+  .account-grid {
+    display: grid;
+    gap: var(--space-md) var(--space-lg);
+  }
+
+  /* Custom checkbox row (native checkbox kept for accessibility,
+     just given breathing room + a pointer cursor) */
+  .form-check-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+    font-size: var(--fs-body-sm);
+  }
+  .form-check-row input[type="checkbox"] {
+    width: 18px; height: 18px;
+    accent-color: var(--color-oxblood);
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>{% if form.instance.pk %}Edit Address{% else %}Add New Address{% endif %}</h1>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <div class="account-layout">
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <nav class="account-nav">
+          <a href="{% url 'profile' %}">Profile Overview</a>
+          <a href="{% url 'order_history' %}">Order History</a>
+          <a href="{% url 'address_list' %}" class="is-active">Saved Addresses</a>
+          <a href="{% url 'edit_profile' %}">Account Settings</a>
+        </nav>
+        <form action="{% url 'logout' %}" method="post" style="margin-top:var(--space-md)">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--outline btn--block">Sign Out</button>
+        </form>
+      </aside>
+
+      <!-- Content -->
+      <div class="account-content">
+        <div class="account-card" style="max-width:600px">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="account-grid" style="grid-template-columns:1fr 1fr">
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label" for="id_name">Full Name</label>
+                <input type="text" name="name" class="form-control" id="id_name" value="{{ form.name.value|default:'' }}" required>
+              </div>
+
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label" for="id_phone">Phone Number</label>
+                <input type="text" name="phone" class="form-control" id="id_phone" value="{{ form.phone.value|default:'' }}" required>
+              </div>
+
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label" for="id_line1">Address Line 1</label>
+                <input type="text" name="line1" class="form-control" id="id_line1" value="{{ form.line1.value|default:'' }}" required>
+              </div>
+
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label" for="id_line2">Address Line 2 (Optional)</label>
+                <input type="text" name="line2" class="form-control" id="id_line2" value="{{ form.line2.value|default:'' }}">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="id_city">City</label>
+                <input type="text" name="city" class="form-control" id="id_city" value="{{ form.city.value|default:'' }}" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="id_state">State</label>
+                <input type="text" name="state" class="form-control" id="id_state" value="{{ form.state.value|default:'' }}" required>
+              </div>
+
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label" for="id_pincode">Pincode</label>
+                <input type="text" name="pincode" class="form-control" id="id_pincode" value="{{ form.pincode.value|default:'' }}" required>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:var(--space-md)">
+              <label class="form-check-row" for="id_is_default">
+                <input type="checkbox" name="is_default" id="id_is_default" {% if form.is_default.value %}checked{% endif %}>
+                <span>Set as default address</span>
+              </label>
+            </div>
+
+            <div class="flex gap-md" style="margin-top:var(--space-lg)">
+              <button type="submit" class="btn">Save Address</button>
+              <a href="{% url 'address_list' %}" class="btn btn--outline">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

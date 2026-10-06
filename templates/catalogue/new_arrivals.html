@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}New Arrivals — SUTRA{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <span class="eyebrow">Just In</span>
+    <h1>New Arrivals</h1>
+    <p class="text-muted" style="margin-top:var(--space-sm)">The latest additions to our collection.</p>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <div class="product-grid reveal-stagger">
+      {% for product in products %}
+        {% include "partials/_product_card.html" with product=product %}
+      {% empty %}
+        <p>No new arrivals yet. Check back soon!</p>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}

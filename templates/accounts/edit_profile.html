@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Account Settings — SUTRA{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ============================================================
+     Same root cause as the rest of the account pages:
+     .account-layout / .account-sidebar / .account-nav /
+     .account-content / .account-card were never defined in any
+     stylesheet. var(--color-border) is also undefined (only
+     --color-line exists). Fixed inline so this page works
+     standalone.
+     ============================================================ */
+
+  .account-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .account-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Sidebar ---- */
+  .account-sidebar {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    position: sticky;
+    top: calc(var(--nav-height) + var(--space-md));
+  }
+  @media (max-width: 768px) {
+    .account-sidebar { position: static; }
+  }
+  .account-nav { display: flex; flex-direction: column; }
+  .account-nav a {
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm) 0.25rem;
+    border-bottom: 1px solid var(--color-line);
+    font-size: var(--fs-body-sm);
+    color: var(--color-ink);
+    transition: color 0.15s ease, padding-left 0.15s ease;
+  }
+  .account-nav a:hover { color: var(--color-oxblood); padding-left: 0.35rem; }
+  .account-nav a.is-active { color: var(--color-oxblood); font-weight: 600; }
+  .account-nav a:last-of-type { border-bottom: none; }
+
+  /* ---- Content / settings card ---- */
+  .account-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+  }
+  .account-card h2 {
+    font-family: var(--font-display);
+    font-size: var(--fs-display-sm);
+  }
+  .account-card__divider {
+    border: none;
+    border-top: 1px solid var(--color-line);
+    margin: var(--space-xl) 0;
+  }
+
+  /* ---- Avatar preview ---- */
+  .avatar-preview {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: var(--space-sm);
+    box-shadow: 0 0 0 1px var(--color-line);
+  }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="page-header text-center">
+  <div class="container">
+    <h1>Account Settings</h1>
+  </div>
+</header>
+
+<main class="section" style="padding-top:0">
+  <div class="container">
+    <div class="account-layout">
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <nav class="account-nav">
+          <a href="{% url 'profile' %}">Profile Overview</a>
+          <a href="{% url 'order_history' %}">Order History</a>
+          <a href="{% url 'address_list' %}">Saved Addresses</a>
+          <a href="{% url 'my_messages' %}">My Messages</a>
+          <a href="{% url 'edit_profile' %}" class="is-active">Account Settings</a>
+        </nav>
+        <form action="{% url 'logout' %}" method="post" style="margin-top:var(--space-md)">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--outline btn--block">Sign Out</button>
+        </form>
+      </aside>
+
+      <!-- Content -->
+      <div class="account-content">
+        <div class="account-card" style="max-width:500px">
+          <h2 style="margin-bottom:var(--space-lg)">Update Details</h2>
+          <form method="post" action="{% url 'edit_profile' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+              <label class="form-label" for="id_first_name">First Name</label>
+              <input type="text" name="first_name" class="form-control" id="id_first_name" value="{{ form.first_name.value }}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="id_last_name">Last Name</label>
+              <input type="text" name="last_name" class="form-control" id="id_last_name" value="{{ form.last_name.value }}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="id_email">Email Address</label>
+              <input type="email" name="email" class="form-control" id="id_email" value="{{ form.email.value }}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="id_phone">Phone Number (Optional)</label>
+              <input type="text" name="phone" class="form-control" id="id_phone" value="{{ form.phone.value|default:'' }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="id_avatar">Profile Photo (Optional)</label>
+              {% if form.instance.avatar %}
+              <div class="avatar-preview">
+                <img src="{{ form.instance.avatar.url }}" alt="Current avatar">
+              </div>
+              {% endif %}
+              <input type="file" name="avatar" class="form-control" id="id_avatar" accept="image/*">
+            </div>
+            <button type="submit" class="btn">Save Changes</button>
+          </form>
+
+          <hr class="account-card__divider">
+
+          <h2 style="margin-bottom:var(--space-md)">Security</h2>
+          <a href="{% url 'password_change' %}" class="btn btn--outline">Change Password</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

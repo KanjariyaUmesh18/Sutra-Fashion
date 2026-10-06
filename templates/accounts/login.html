@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | SUTRA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #fcfcfc;
+      --bg-secondary: #ffffff;
+      --text-main: #111111;
+      --text-muted: #666666;
+      --accent: #000000;
+      --accent-hover: #333333;
+      --border-color: #eaeaea;
+      --error-color: #d93025;
+      --error-bg: #fce8e6;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #141414;
+        --text-main: #ffffff;
+        --text-muted: #999999;
+        --accent: #ffffff;
+        --accent-hover: #cccccc;
+        --border-color: #333333;
+        --error-color: #ff897d;
+        --error-bg: rgba(217, 48, 37, 0.15);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .auth-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: radial-gradient(circle at 50% 0%, rgba(0,0,0,0.03) 0%, transparent 70%);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .auth-wrapper {
+        background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.05) 0%, transparent 70%);
+      }
+    }
+
+    .auth-card {
+      background: var(--bg-secondary);
+      width: 100%;
+      max-width: 420px;
+      padding: 3rem;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02);
+      border: 1px solid var(--border-color);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeUp {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .brand-logo {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--text-main);
+      display: inline-block;
+      margin-bottom: 1.5rem;
+    }
+
+    .brand h1 {
+      font-size: 1.75rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .alert {
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    .alert-error {
+      background: var(--error-bg);
+      color: var(--error-color);
+      border: 1px solid rgba(217,48,37,0.2);
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    .form-group { margin-bottom: 1.5rem; position: relative; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .form-control:focus {
+        box-shadow: 0 0 0 4px rgba(255,255,255,0.05);
+      }
+    }
+
+    .password-wrapper { position: relative; }
+    
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      transition: var(--transition);
+    }
+    
+    .pw-toggle:hover { color: var(--text-main); }
+
+    .forgot-pw {
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .forgot-pw:hover { color: var(--text-main); }
+
+    .btn-submit {
+      width: 100%;
+      padding: 1rem;
+      background: var(--accent);
+      color: var(--bg-secondary);
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+    }
+
+    .btn-submit:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .btn-submit:active { transform: translateY(0); }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .spinner {
+        border-color: rgba(0,0,0,0.3);
+        border-top-color: #000;
+      }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .is-loading .spinner { display: block; }
+    .is-loading .btn-text { display: none; }
+
+    .footer-links {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .footer-links a {
+      color: var(--text-main);
+      font-weight: 500;
+      text-decoration: none;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .footer-links a::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      bottom: -2px;
+      left: 0;
+      background: var(--text-main);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.3s ease;
+    }
+
+    .footer-links a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    @media (max-width: 480px) {
+      .auth-card { padding: 2rem; border-radius: 16px; border: none; box-shadow: none; background: transparent; }
+      .auth-wrapper { background: var(--bg-primary); padding: 1rem; align-items: flex-start; padding-top: 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="brand">
+      <a href="{% url 'home' %}" class="brand-logo">SUTRA</a>
+      <h1>Welcome back</h1>
+      <p>Enter your details to access your account.</p>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-error">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</span>
+    </div>
+    {% endif %}
+
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'success' %}
+          <div class="alert" style="background: rgba(46,160,67,0.1); color: #2ea043; border: 1px solid rgba(46,160,67,0.2);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>{{ message }}</span>
+          </div>
+        {% else %}
+          <div class="alert alert-error">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ message }}</span>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}" id="loginForm">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+
+      <div class="form-group">
+        <label for="id_username">Email Address</label>
+        <input type="email" name="username" id="id_username" class="form-control" required autofocus placeholder="name@example.com" value="{{ form.username.value|default:'' }}">
+        {% if form.username.errors %}
+          <div style="color:var(--error-color);font-size:0.8rem;margin-top:0.4rem;">{{ form.username.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_password">Password</label>
+        <a href="{% url 'password_reset' %}" class="forgot-pw">Forgot?</a>
+        <div class="password-wrapper">
+          <input type="password" name="password" id="id_password" class="form-control" required placeholder="••••••••">
+          <button type="button" class="pw-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
+            <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        {% if form.password.errors %}
+          <div style="color:var(--error-color);font-size:0.8rem;margin-top:0.4rem;">{{ form.password.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <span class="btn-text">Sign In</span>
+        <div class="spinner"></div>
+      </button>
+    </form>
+
+    <div class="footer-links">
+      New to SUTRA? <a href="{% url 'register' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">Create an account</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword() {
+    const input = document.getElementById('id_password');
+    const icon = document.getElementById('eye-icon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    } else {
+      input.type = 'password';
+      icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', function() {
+    document.getElementById('submitBtn').classList.add('is-loading');
+  });
+</script>
+
+</body>
+</html>

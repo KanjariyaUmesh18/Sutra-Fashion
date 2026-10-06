@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed — SUTRA{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* The original box used var(--color-sand), which isn't a variable
+     defined anywhere in the project (only --color-ivory / --color-ivory-deep
+     exist), so the "Order Details" box was rendering with no background
+     at all. Rebuilt as a proper card using real variables. */
+  .order-confirm-icon {
+    width: 84px; height: 84px;
+    margin: 0 auto var(--space-md);
+    display: block;
+    stroke: var(--color-sage);
+    fill: none;
+    stroke-width: 1;
+  }
+
+  .order-confirm-card {
+    background: var(--color-ivory-deep);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-lg);
+    text-align: left;
+    margin-bottom: var(--space-xl);
+  }
+  .order-confirm-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    margin-bottom: var(--space-sm);
+  }
+  .order-confirm-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2xs) 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .order-confirm-row:last-child { border-bottom: none; }
+
+  .order-confirm-actions {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 480px) {
+    .order-confirm-actions { flex-direction: column; }
+    .order-confirm-actions .btn { width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="section text-center">
+  <div class="container" style="max-width:600px">
+    <svg class="order-confirm-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/>
+    </svg>
+    <h1 style="font-size:var(--fs-display-sm); margin-bottom:var(--space-sm)">Thank you for your order!</h1>
+    <p class="text-muted" style="margin-bottom:var(--space-lg)">
+      Your order <strong>#{{ order.order_number }}</strong> has been successfully placed.
+      We've sent a confirmation email to your registered email address.
+    </p>
+
+    <div class="order-confirm-card">
+      <h3>Order Details</h3>
+      <div class="order-confirm-row text-sm">
+        <span class="text-muted">Status:</span>
+        <span class="badge">{{ order.get_status_display }}</span>
+      </div>
+      <div class="order-confirm-row text-sm">
+        <span class="text-muted">Payment Method:</span>
+        <span>{{ order.get_payment_method_display }}</span>
+      </div>
+      <div class="order-confirm-row text-sm">
+        <span class="text-muted">Total Amount:</span>
+        <strong>₹{{ order.total }}</strong>
+      </div>
+    </div>
+
+    <div class="order-confirm-actions">
+      <a href="{% url 'order_detail' order.order_number %}" class="btn btn--outline">View Order Status</a>
+      <a href="{% url 'categories' %}" class="btn">Continue Shopping</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

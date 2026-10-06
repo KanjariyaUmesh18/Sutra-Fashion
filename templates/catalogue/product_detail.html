@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} — SUTRA{% endblock %}
+
+{% block content %}
+<div class="section">
+  <div class="container">
+    <nav class="breadcrumb" style="margin-bottom:var(--space-md)" aria-label="Breadcrumb">
+      <a href="{% url 'home' %}">Home</a><span class="breadcrumb__sep">/</span>
+      <a href="{% url 'categories' %}">Categories</a><span class="breadcrumb__sep">/</span>
+      <a href="{% url 'category_detail' product.category.slug %}">{{ product.category.name }}</a><span class="breadcrumb__sep">/</span>
+      <span>{{ product.name }}</span>
+    </nav>
+
+    <div class="pdp-outer-grid">
+      <!-- Left: Gallery -->
+      <div class="pdp-gallery-container">
+        <div class="pdp-main-image-wrap" id="pdpMainImageWrap">
+          {% if product.images.all %}
+            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" id="pdpMainImage">
+          {% else %}
+            <img src="https://images.pexels.com/photos/37523792/pexels-photo-37523792.jpeg?auto=compress&cs=tinysrgb&w=700&h=900&fit=crop" alt="{{ product.name }}" id="pdpMainImage">
+          {% endif %}
+        </div>
+        {% if product.images.all|length > 1 %}
+        <div class="pdp-thumbs">
+          {% for img in product.images.all %}
+          <button type="button" class="pdp-thumb {% if forloop.first %}is-active{% endif %}"
+                  data-full="{{ img.image.url }}" aria-label="View image {{ forloop.counter }}">
+            <img src="{{ img.image.url }}" alt="{{ product.name }} view {{ forloop.counter }}" loading="lazy">
+          </button>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Right: Product Info -->
+      <div class="pdp-info">
+        <div class="flex-between" style="margin-bottom:var(--space-2xs)">
+          <span class="product-card__cat">{{ product.category.name }}</span>
+          <span class="text-sm text-muted">Code: {{ product.sku }}</span>
+        </div>
+        <h1 style="font-size:var(--fs-display-sm); margin-bottom:var(--space-2xs)">{{ product.name }}</h1>
+        
+        <div class="pdp-info__price-row">
+          <span class="pdp-info__price">₹{{ product.price }}</span>
+          {% if product.original_price and product.original_price > product.price %}
+            <span class="pdp-info__price--old">₹{{ product.original_price }}</span>
+            <span class="badge badge--danger">{{ product.discount_percentage }}% off</span>
+          {% endif %}
+        </div>
+
+        {% if product.is_in_stock %}
+          <p class="text-sm" style="margin-bottom:var(--space-md); color:var(--color-sage)"><span class="stock-dot"></span> In stock</p>
+        {% else %}
+          <p class="text-sm" style="margin-bottom:var(--space-md); color:var(--color-oxblood)"><span class="stock-dot" style="background:var(--color-oxblood)"></span> Out of stock</p>
+        {% endif %}
+
+        <!-- Shipping & Payment info -->
+        <div class="pdp-delivery-info">
+          {% if product.free_shipping %}
+          <div class="pdp-delivery-info__row">
+            <svg viewBox="0 0 24 24" class="pdp-delivery-info__icon"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7zM6 20a2 2 0 100-4 2 2 0 000 4zM17 20a2 2 0 100-4 2 2 0 000 4z"/></svg>
+            <span><strong>Free Shipping</strong> on this item</span>
+          </div>
+          {% else %}
+          <div class="pdp-delivery-info__row">
+            <svg viewBox="0 0 24 24" class="pdp-delivery-info__icon"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7zM6 20a2 2 0 100-4 2 2 0 000 4zM17 20a2 2 0 100-4 2 2 0 000 4z"/></svg>
+            <span>Shipping charge: <strong>₹{{ product.shipping_charge }}</strong></span>
+          </div>
+          {% endif %}
+          {% if product.cash_on_delivery %}
+          <div class="pdp-delivery-info__row">
+            <svg viewBox="0 0 24 24" class="pdp-delivery-info__icon"><path d="M2 7h20v10H2zM2 10h20M6 15h4"/></svg>
+            <span><strong>Cash on Delivery</strong> available</span>
+          </div>
+          {% else %}
+          <div class="pdp-delivery-info__row pdp-delivery-info__row--muted">
+            <svg viewBox="0 0 24 24" class="pdp-delivery-info__icon"><path d="M2 7h20v10H2zM2 10h20M6 15h4"/></svg>
+            <span>Cash on Delivery not available — prepaid orders only</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <form method="post" action="{% url 'add_to_cart' product.id %}" id="pdpForm">
+          {% csrf_token %}
+          
+          <!-- Size -->
+          {% if product.get_sizes_list %}
+          <div class="pdp-info__block">
+            <div class="flex-between">
+              <div class="pdp-info__label" style="margin-bottom:0">Select Size</div>
+            </div>
+            <div class="swatch-row" style="margin-top:var(--space-2xs)">
+              {% for size in product.get_sizes_list %}
+              <label class="swatch-label">
+                <input type="radio" name="size" value="{{ size }}" required>
+                <span class="swatch-size">{{ size }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Color -->
+          {% if product.get_colors_list %}
+          <div class="pdp-info__block">
+            <div class="pdp-info__label">Select Colour</div>
+            <div class="swatch-row">
+              {% for color in product.get_colors_list %}
+              <label class="swatch-label">
+                <input type="radio" name="color" value="{{ color }}" required>
+                <span class="swatch-color" style="background-color:{{ color|lower }}" title="{{ color }}"></span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Quantity & Actions -->
+          <div class="flex gap-md" style="margin-top:var(--space-lg); align-items:flex-end">
+            <div style="flex-shrink:0">
+              <div class="pdp-info__label">Qty</div>
+              <div class="qty-stepper">
+                <button type="button" class="qty-btn" aria-label="Decrease quantity">−</button>
+                <input type="number" name="quantity" class="qty-input" value="1" min="1" max="{{ product.stock|default:10 }}" aria-label="Quantity">
+                <button type="button" class="qty-btn" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn" style="flex:1" {% if not product.is_in_stock %}disabled{% endif %}>
+              {% if product.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+            </button>
+          </div>
+        </form>
+
+        <form method="post" action="{% url 'toggle_wishlist' product.id %}" style="margin-top:var(--space-md)">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--outline btn--block">
+            <svg viewBox="0 0 24 24" style="width:20px;height:20px;vertical-align:middle;margin-right:8px">
+              <path d="M12 20.5s-7.5-4.6-10-9.4C.4 7.7 2 4 5.6 3.4 8 3 10.3 4.2 12 6.6 13.7 4.2 16 3 18.4 3.4 22 4 23.6 7.7 22 11.1 19.5 15.9 12 20.5 12 20.5z"/>
+            </svg>
+            Add to Wishlist
+          </button>
+        </form>
+
+        <!-- Description Accordion -->
+        <div class="accordion-group" style="margin-top:var(--space-xl)">
+          <div class="accordion is-open">
+            <button class="accordion__toggle" aria-expanded="true">
+              Description
+              <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="accordion__content" style="max-height: 1000px;">
+              <div class="accordion__inner">
+                <p>{{ product.description|linebreaksbr }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+    <!-- Related Products -->
+    {% if related_products %}
+    <div style="margin-top:var(--space-2xl)">
+      <h2 style="font-size:var(--fs-display-sm); margin-bottom:var(--space-lg)">You may also like</h2>
+      <div class="product-grid">
+        {% for rel in related_products %}
+          {% include "partials/_product_card.html" with product=rel %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  // Thumbnail click swaps the main image
+  var thumbs = document.querySelectorAll('.pdp-thumb');
+  var mainImg = document.getElementById('pdpMainImage');
+  thumbs.forEach(function (thumb) {
+    thumb.addEventListener('click', function () {
+      thumbs.forEach(function (t) { t.classList.remove('is-active'); });
+      thumb.classList.add('is-active');
+      var full = thumb.getAttribute('data-full');
+      if (full && mainImg) {
+        mainImg.style.opacity = '0';
+        setTimeout(function () {
+          mainImg.src = full;
+          mainImg.style.opacity = '1';
+        }, 120);
+      }
+    });
+  });
+
+  // The main image is intentionally static: no hover-zoom, no hover-swap.
+  // It only changes when a thumbnail is clicked (handled above), with a
+  // simple fade — no resizing, jumping, or animating of the image box.
+})();
+</script>
+{% endblock %}
